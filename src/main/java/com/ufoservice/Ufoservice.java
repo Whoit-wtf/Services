@@ -33,11 +33,11 @@ public class Ufoservice {
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Ищем папку ufoservice...");
         result = connectionSsh.runCommand("sudo find /oracle/ -type d -name \"ufoservice\"");
-        result[1] = result[1].replace('\n',' ');
         System.out.println("Найденные директории:\n" + result[1]);
+        result[1] = result[1].replace('\n',' ');
         String[] dirServicesList = result[1].split(" ");
 
-        if (dirServicesList.length > 2) {
+        if (dirServicesList.length >= 2) {
             System.out.println("начинаем перебор...");
             for (int i = 0; i <= dirServicesList.length; i++ ){
                 String dirService = dirServicesList[i];
