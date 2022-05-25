@@ -79,6 +79,5 @@ public class Ufoservice {
         System.out.println("Становимся владельцем и запускаем ufoservice...");
         result = connectionSsh.runCommand("<< EOF sudo su - "+ owner +
                 "\ncd "+ dirService +"\n nohup ./ufoservice.sh service-start & EOF");
-        System.out.println(result);
     }
 }

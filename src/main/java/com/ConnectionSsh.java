@@ -21,10 +21,10 @@ public class ConnectionSsh {
             JSch jsch = new JSch();
             //Отключаем првоерку ключа в hosts
             JSch.setConfig("StrictHostKeyChecking", "no");
-            System.out.println("Connected");
+            //System.out.println("Connected");
             //идентификация по ключу
             jsch.addIdentity(private_key);
-            System.out.println("identity added ");
+            //System.out.println("identity added ");
 
             Session session=jsch.getSession(user, host, 22);
             session.connect();
