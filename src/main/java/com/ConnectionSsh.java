@@ -31,7 +31,7 @@ public class ConnectionSsh {
 
             // exec - разовое выполнение команды, shell - создание сессии на несоклько команд
             Channel channel=session.openChannel("exec");
-            // пеередаем команду на выполнение, смнтаксис не понятен
+            // пеередаем команду на выполнение, синтаксис не понятен
             ((ChannelExec)channel).setCommand(command1);
             channel.setInputStream(null);
             ((ChannelExec)channel).setErrStream(System.err);
