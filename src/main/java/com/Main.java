@@ -1,6 +1,8 @@
 package com;
 
 import java.util.Scanner;
+
+import com.ufoservice.Ufoservice;
 import com.update_stands.UpdateStands;
 
 public class Main {
@@ -47,7 +49,8 @@ public class Main {
                     // вызов метода 2
                     break;
                 case 3:
-                    // вызов метода 3
+                    Ufoservice ufoservice = new Ufoservice();
+                    ufoservice.runUfoservice();
                     break;
                 case 4:
                     // вызов метода 4
