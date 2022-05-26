@@ -10,8 +10,8 @@ public class Main {
 
         Scanner scan = new Scanner(System.in);
         int x = 0;
-        String s ="";
-        while (!"0".equals(s)){
+        String s = "";
+        while (!"0".equals(s)) {
             System.out.println("" +
                     "░░░░░░░▄░░▄░░░░░░░░░░░░░░░░░░\n" +
                     "░░░░░░██▄██░░░░░░░░░░░░░░░░░░\n" +
@@ -37,11 +37,11 @@ public class Main {
 
             try {
                 x = Integer.parseInt(s);
-            } catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 System.out.println("Неверный ввод");
             }
 
-            switch (x){
+            switch (x) {
                 case 1:
                     UpdateStands updateStands = new UpdateStands();
                     updateStands.runUpdate();
