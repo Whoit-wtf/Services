@@ -36,7 +36,7 @@ public class ConnectionSsh {
             // пеередаем команду на выполнение, синтаксис не понятен
             ((ChannelExec) channel).setCommand(command1);
             channel.setInputStream(null);
-            ((ChannelExec) channel).setErrStream(System.err);
+            //((ChannelExec) channel).setErrStream(System.err);
 
             InputStream in = channel.getInputStream();
             channel.connect();
@@ -54,14 +54,17 @@ public class ConnectionSsh {
                     result[0] = Integer.toString(channel.getExitStatus());
                     // System.out.println("exit-status: "+channel.getExitStatus());
                     break;
+
                 }
                 try {
                     Thread.sleep(1000);
                 } catch (Exception ee) {
                 }
+                channel.disconnect();
+                session.disconnect();
             }
-            channel.disconnect();
-            session.disconnect();
+
+
             //System.out.println("DONE");
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,4 +72,5 @@ public class ConnectionSsh {
         return result;
     }
 }
+
 
