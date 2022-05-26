@@ -23,7 +23,7 @@ public class UpdateStands {
             System.out.println("1. Одна нода\n2. Две ноды");
             this.type = Integer.parseInt(reader.readLine());
             if (type == 1) {
-                System.out.println("Введите адрес первой ноды: ");
+                System.out.println("Введите адрес ноды: ");
                 this.host = reader.readLine();
             } else if (type == 2) {
                 System.out.println("Введите адрес первой ноды: ");
@@ -53,14 +53,15 @@ public class UpdateStands {
 
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
 
-        result = connectionSsh.runCommand("ps aux | grep -v grep | grep " + port);
-        System.out.println("Код:" + result[0]);
+        /*result = connectionSsh.runCommand("ps aux | grep -v grep | grep STAND | grep " + port );
         if (result[1] != null){
             System.out.println("Вывод: " + result[1].replace(' ', '\n'));
         } else {
-            System.out.println("Вывод: Тут пусто :(");
-        }
-
+            System.out.println("Вывод: Процесс не обнаружен :(");
+        }*/
+        result = connectionSsh.runCommand("sudo unzip /tmp/tmp22222/*.war -d /tmp/tmp22222/");
+        System.out.println("Код: " + result[0]);
+        System.out.println("Вывод: " + result[1]);
 
     }
 

@@ -37,9 +37,11 @@ public class ConnectionSsh {
             ((ChannelExec) channel).setCommand(command1);
             channel.setInputStream(null);
             //((ChannelExec) channel).setErrStream(System.err);
-
             InputStream in = channel.getInputStream();
             channel.connect();
+            // Ожидание окончания команды
+            //channel.wait();
+
             //побайтово считываем вывод
             byte[] tmp = new byte[1024];
             while (true) {
@@ -51,15 +53,26 @@ public class ConnectionSsh {
                     //System.out.print(new String(tmp, 0, i));
                 }
                 if (channel.isClosed()) {
+                    //if(in.available() > 0) continue;
                     result[0] = Integer.toString(channel.getExitStatus());
                     // System.out.println("exit-status: "+channel.getExitStatus());
                     break;
 
                 }
-                try {
+                /*try {
                     Thread.sleep(1000);
                 } catch (Exception ee) {
+                }*/
+                // Пока статус -1 (работа не закончена) тормозить поток
+                while (channel.getExitStatus() == -1) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (Exception ee) {
+                    }
+                    //if (channel.getExitStatus() != -1) break;
                 }
+
+
                 channel.disconnect();
                 session.disconnect();
             }
