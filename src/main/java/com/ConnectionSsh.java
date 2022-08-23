@@ -10,7 +10,7 @@ import com.jcraft.jsch.Session;
 public class ConnectionSsh {
     String host;
     String user = "petrov.aleksandr";
-    String private_key = "C:\\Users\\Avic\\Desktop\\Java\\key_rsa.pem";
+    String private_key = "C:\\Users\\Fenrir\\Desktop\\key_rsa.pem";
 
     //типа конструктор
     public ConnectionSsh(String host) {

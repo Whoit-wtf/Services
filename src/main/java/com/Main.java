@@ -28,7 +28,7 @@ public class Main {
                     "░░▄██░░░███████████░█████▀░░░\n" +
                     "███▀░░████████████▀██▀▀▀░░░░░");
             System.out.println("1. Обновление стенда");
-            System.out.println("2. Обновление стенда с java8 + jetty");
+            System.out.println("2. Обновление стенда с java8 + jetty9");
             System.out.println("3. Запуск ufoservice");
             System.out.println("4. Выдача доступов в PG");
             System.out.println("5. Работа с logback.xml");

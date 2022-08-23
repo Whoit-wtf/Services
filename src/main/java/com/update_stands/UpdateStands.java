@@ -3,6 +3,8 @@ package com.update_stands;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.ConnectionSsh;
 
@@ -59,9 +61,17 @@ public class UpdateStands {
         } else {
             System.out.println("Вывод: Процесс не обнаружен :(");
         }*/
-        result = connectionSsh.runCommand("sudo unzip /tmp/tmp22222/*.war -d /tmp/tmp22222/");
+        result = connectionSsh.runCommand("ps aux | grep 18080");
+
         System.out.println("Код: " + result[0]);
         System.out.println("Вывод: " + result[1]);
+        Pattern pattern = Pattern.compile("-Djetty.home=\\S+");
+        Matcher matcher = pattern.matcher(result[1]);
+        if(matcher.find())
+            System.out.println("Папка стенда " + matcher.group().split("=")[1]);
+
+        /*while(matcher.find())
+            System.out.println(matcher.group());*/
 
     }
 
