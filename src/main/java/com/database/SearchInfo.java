@@ -38,7 +38,7 @@ public class SearchInfo {
         String[] result;
 
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
-        result = connectionSsh.runCommand("ps aux | grep " + port);
+        result = connectionSsh.runCommand("ps aux | grep " + port + " | grep -v grep");
         //System.out.println("Код: " + result[0]);
         //System.out.println("Вывод: " + result[1]);
         Pattern pattern = Pattern.compile("-Djetty.home=\\S+");

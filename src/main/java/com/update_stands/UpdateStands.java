@@ -61,10 +61,11 @@ public class UpdateStands {
         } else {
             System.out.println("Вывод: Процесс не обнаружен :(");
         }*/
-        result = connectionSsh.runCommand("ps aux | grep 18080");
+        result = connectionSsh.runCommand("ps aux | grep 18080 | grep -v grep");
 
         System.out.println("Код: " + result[0]);
         System.out.println("Вывод: " + result[1]);
+
         Pattern pattern = Pattern.compile("-Djetty.home=\\S+");
         Matcher matcher = pattern.matcher(result[1]);
         if(matcher.find())

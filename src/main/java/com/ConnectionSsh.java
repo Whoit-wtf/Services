@@ -43,10 +43,10 @@ public class ConnectionSsh {
             //channel.wait();
 
             //побайтово считываем вывод
-            byte[] tmp = new byte[1024];
+            byte[] tmp = new byte[1000000];
             while (true) {
                 while (in.available() > 0) {
-                    int i = in.read(tmp, 0, 1024);
+                    int i = in.read(tmp, 0, 1000000);
                     if (i < 0) break;
                     // создаём строку из полученных байтов
                     result[1] = new String(tmp, 0, i);
