@@ -42,7 +42,7 @@ public class ConnectionSsh {
             // Ожидание окончания команды
             //channel.wait();
 
-            //побайтово считываем вывод
+            //по байтово считываем вывод (1000000 байт = 1 Мб) чем выше тем больше вывода будет
             byte[] tmp = new byte[1000000];
             while (true) {
                 while (in.available() > 0) {
