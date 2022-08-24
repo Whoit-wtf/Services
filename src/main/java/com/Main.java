@@ -2,6 +2,7 @@ package com;
 
 import java.util.Scanner;
 
+import com.database.ActionStands;
 import com.ufoservice.Ufoservice;
 import com.update_stands.UpdateStands;
 
@@ -32,6 +33,7 @@ public class Main {
             System.out.println("3. Запуск ufoservice");
             System.out.println("4. Выдача доступов в PG");
             System.out.println("5. Работа с logback.xml");
+            System.out.println("6. Работа с DataBase");
             System.out.println("0. Выход");
             s = scan.next();
 
@@ -58,6 +60,12 @@ public class Main {
                     break;
                 case 5:
                     // вызов метода 5
+                    break;
+                case 6:
+                    ActionStands actionStands = new ActionStands();
+                    actionStands.main();
+
+
             }
         }
         System.out.println("Давай до свидания (>_<)");

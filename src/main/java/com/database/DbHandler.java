@@ -53,16 +53,41 @@ public class DbHandler {
             return Collections.emptyList();
         }
     }
+    public List<Stands> checkStands(String node) {
+        // Statement используется для того, чтобы выполнить sql-запрос
+        try (Statement statement = this.connection.createStatement()) {
+            // В данный список будем загружать данные
+            List<Stands> stands = new ArrayList<Stands>();
+            // В resultSet будет храниться результат нашего запроса,
+            // который выполняется командой statement.executeQuery()
+            ResultSet resultSet = statement.executeQuery("SELECT id, node1, node2 , port, folder, owner " +
+                    " FROM standsInfo WHERE 'node1' ='" + node +"'");
+            // Проходимся по нашему resultSet и заносим данные
+            while (resultSet.next()) {
+                stands.add(new Stands(
+                        resultSet.getInt("id"),
+                        resultSet.getString("node1"),
+                        resultSet.getString("node2"),
+                        resultSet.getString("port"),
+                        resultSet.getString("folder"),
+                        resultSet.getString("owner")));
+            }
+            return stands;
+        } catch (SQLException e ) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
     // Добавление в БД
-    public void addStands(Stands stands) {
+    public void addStands(String node1, String node2, String port, String folder,String owner) {
         try (PreparedStatement statement = this.connection.prepareStatement(
-                "INSERT INTO standsInfo('port','node1', 'node2', 'owner', 'folder')"+
+                "INSERT INTO standsInfo('node1', 'node2', 'port', 'folder', 'owner')"+
                         "VALUES(?, ?, ?, ?, ?)")) {
-            statement.setObject(1, stands.port);
-            statement.setObject(2, stands.node1);
-            statement.setObject(3, stands.node2);
-            statement.setObject(4, stands.owner);
-            statement.setObject(5, stands.folder);
+            statement.setObject(1, node1);
+            statement.setObject(2, node2);
+            statement.setObject(3, port);
+            statement.setObject(4, folder);
+            statement.setObject(5, owner);
 
 
             statement.execute();
@@ -70,12 +95,23 @@ public class DbHandler {
             e.printStackTrace();
         }
     }
+    /*public void addStands(String port, String node1, String node2, String owner, String folder){
+        try {
+            String query =  "INSERT INTO standsInfo('node1', 'node2', 'port', 'folder', 'owner')"+
+                    "VALUES ('" + node1 + "', '" + node2 + "', '" + port + "', '" + folder + "', '" + owner + "')";
+            Statement statement = connection.createStatement();
+            statement.executeUpdate(query);
 
-    // Удаление лога по ID
-    public void deleteStands(int id){
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }*/
+
+    // Удаление по ID
+    public void deleteStands(String node1){
         try (PreparedStatement statement = this.connection.prepareStatement(
-                "DELETE FROM standsInfo WHERE id = ?")) {
-            statement.setObject(1, id);
+                "DELETE FROM standsInfo WHERE node1 = ?")) {
+            statement.setObject(1, node1);
             statement.execute();
         }catch (SQLException e) {
             e.printStackTrace();
