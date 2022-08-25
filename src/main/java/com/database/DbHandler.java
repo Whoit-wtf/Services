@@ -57,11 +57,11 @@ public class DbHandler {
         // Statement используется для того, чтобы выполнить sql-запрос
         try (Statement statement = this.connection.createStatement()) {
             // В данный список будем загружать данные
-            List<Stands> stands = new ArrayList<Stands>();
+            List<Stands> stands = new ArrayList<>();
             // В resultSet будет храниться результат нашего запроса,
             // который выполняется командой statement.executeQuery()
             ResultSet resultSet = statement.executeQuery("SELECT id, node1, node2 , port, folder, owner " +
-                    " FROM standsInfo WHERE 'node1' ='" + node +"'");
+                    " FROM standsInfo WHERE node1 = '" + node +"'");
             // Проходимся по нашему resultSet и заносим данные
             while (resultSet.next()) {
                 stands.add(new Stands(
@@ -78,6 +78,7 @@ public class DbHandler {
             return Collections.emptyList();
         }
     }
+
     // Добавление в БД
     public void addStands(String node1, String node2, String port, String folder,String owner) {
         try (PreparedStatement statement = this.connection.prepareStatement(
@@ -95,17 +96,6 @@ public class DbHandler {
             e.printStackTrace();
         }
     }
-    /*public void addStands(String port, String node1, String node2, String owner, String folder){
-        try {
-            String query =  "INSERT INTO standsInfo('node1', 'node2', 'port', 'folder', 'owner')"+
-                    "VALUES ('" + node1 + "', '" + node2 + "', '" + port + "', '" + folder + "', '" + owner + "')";
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(query);
-
-        } catch (SQLException e){
-            e.printStackTrace();
-        }
-    }*/
 
     // Удаление по ID
     public void deleteStands(String node1){

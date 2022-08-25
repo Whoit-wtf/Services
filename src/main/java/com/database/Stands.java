@@ -11,20 +11,20 @@ public class Stands {
 
 
     // Конструктор
-    public Stands(int id, String port, String node1, String node2, String owner, String folder ) {
+    public Stands(int id, String node1, String node2, String port, String folder, String owner) {
         this.id = id;
-        this.port = port;
         this.node1 = node1;
         this.node2 = node2;
-        this.owner = owner;
+        this.port = port;
         this.folder = folder;
+        this.owner = owner;
 
     }
 
     // Выводим информацию
-    @Override
+   /* @Override
     public String toString() {
         return String.format("ID: %s | Порт: %s | Нода1: %s | Нода2: %s | Папка стенда: %s | Владелец: %s ",
                 this.id, this.port, this.node1, this.node2, this.folder, this.owner);
-    }
+    }*/
 }

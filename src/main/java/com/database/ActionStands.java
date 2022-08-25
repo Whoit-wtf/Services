@@ -1,7 +1,6 @@
 package com.database;
 
-import com.database.SearchInfo;
-import jdk.nashorn.internal.runtime.Undefined;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,7 +47,7 @@ public class ActionStands {
                     delStands(node1);
                     break;
                 case 4:
-                    SearchInfo searchInfo = new SearchInfo();
+                    SearchInfo searchInfo = new SearchInfo(true);
                     info = searchInfo.info;
                     if(checkStands(info[0])){
                         addStands(info[0], info[1], info[2], info[3], info[4]);
@@ -140,5 +139,26 @@ public class ActionStands {
         }
         return result;
     }
+    public List<Stands> getStands(String node1){
+        List<Stands> result = null;
+        System.out.println("Получаем данные по стенду "+node1);
+        if (node1 == null){
+            System.out.println("Пришёл null");
+        }else{
+            try {
+                // Создаем экземпляр по работе с БД
+                DbHandler dbHandler = DbHandler.getInstance();
+                result = dbHandler.checkStands(node1);
+                if (result.isEmpty()){
+                    System.out.println(node1 + " не найден в БД");
+                }//else System.out.println(node1 + " найден в БД");
+            } catch (
+                    SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
 
 }

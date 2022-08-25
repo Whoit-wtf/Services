@@ -13,24 +13,30 @@ public class SearchInfo {
     String port = null;
     String node1 = null;
     String node2 = null;
-    String[] info;
+    public String[] info;
 
-    public SearchInfo() {
+    //Если нужно собирать данные через конструктор true иначе false
+    public SearchInfo(Boolean type) {
 
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(System.in));
-            System.out.println("Введите адрес первой ноды: ");
-            this.node1 = reader.readLine();
-            System.out.println("Введите адрес второй ноды: ");
-            this.node2 = reader.readLine();
-            System.out.println("Введите рабочий порт стенда: ");
-            this.port = reader.readLine();
+        if(type){
+            try {
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(System.in));
+                System.out.println("Введите адрес первой ноды: ");
+                this.node1 = reader.readLine();
+                System.out.println("Введите адрес второй ноды: ");
+                this.node2 = reader.readLine();
+                System.out.println("Введите рабочий порт стенда: ");
+                this.port = reader.readLine();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            this.info = run(node1, node2, port);
+        }else{
+
         }
-        this.info = run(node1, node2, port);
+
     }
 
     public String[] run(String node1, String node2, String port){
@@ -53,12 +59,12 @@ public class SearchInfo {
                 info[0] = node1;
                 info[1] = node2;
                 info[2] = port;
-                info[3] = matcher.group().split("=")[1];
+                info[3] = matcher.group().split("=")[1].replace('\n',' ');
             }
             result = connectionSsh.runCommand("ls -lh " + info[3] + "| awk 'NR==2{{print $3}}'");
             //System.out.println("Код: " + result[0]);
             // System.out.println("Вывод: " + result[1]);
-            info[4] = result[1];
+            info[4] = result[1].replace('\n',' ');
             System.out.println("Собранная информация:");
             System.out.println("Первая нода: "+info[0]);
             System.out.println("Вторая нода: "+info[1]);
