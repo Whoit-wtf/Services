@@ -207,67 +207,60 @@ public class UpdateStands {
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         System.out.println("Скачиваем либы в tmp и проверяем содержимое архива");
         result = connectionSsh.runCommand("bash << EOF" +
-                "\n sudo su - " + owner +
-                "\nmkdir /tmp/showlibs/" +
-                "\ncd /tmp/showlibs/" +
+                "\nsudo su - " + owner +
+                "\nmkdir "+path+"/lib/ext/showlibs"+
+                "\ncd "+path+"/lib/ext/showlibs" +
                 "\nwget --no-check-certificate " + url +
-                "\nunzip *.zip" +
                 "\nEOF");
         System.out.println("Код: " + result[0]);
         System.out.println("Вывод: " + result[1]);
-        result = connectionSsh.runCommand("ls /tmp/showlibs/");
-        System.out.println("Проверяем что распаковалось...");
+        //out sufd
+        result = connectionSsh.runCommand("sudo unzip -l "+path+"/lib/ext/showlibs/*.zip " +
+                "| awk 'NR==4{{print $4}}' ");
+        result[1] = result[1].replace("\n","");
         System.out.println("Код: " + result[0]);
-        System.out.println("Вывод:\n" + result[1]);
-        System.out.println("Это похоже на sufd ?");
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(System.in));
-            Date date = new Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
-            System.out.println("1.Да\n2.Нет:(");
-            String input = reader.readLine().replace(" ", "");
-            if (input.equals("1")) {
-                System.out.println("Продолжаем...");
-                System.out.println("Бекапим старые либы...");
-                result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
-                        path + "/lib/ext/sufd_" + formatter.format(date));
-                if ("0".equals(result[0])) {
-                    System.out.println("OK");
-                } else {
-                    System.out.println("Что-то пошло не так");
-                    return false;
-                }
-                System.out.println("Переносим либы в папку стенда");
-                result = connectionSsh.runCommand("sudo mv /tmp/showlibs/sufd " + path + "/lib/ext/");
-                if ("0".equals(result[0])) {
-                    System.out.println("OK");
-                } else {
-                    System.out.println("Что-то пошло не так");
-                    return false;
-                }
-                System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("sudo rm -f /tmp/showlibs");
-                if ("0".equals(result[0])) {
-                    System.out.println("OK");
-                } else {
-                    System.out.println("Что-то пошло не так");
-                    return false;
-                }
+        System.out.println("Вывод: " + result[1]);
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
+        if ("sufd/".equals(result[1])) {
+            System.out.println("Продолжаем...");
+            System.out.println("Бекапим старые либы...");
+            result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
+                    path + "/lib/ext/sufd.bk_" + formatter.format(date));
+            System.out.println(result[1]);
+            if ("0".equals(result[0])) {
+                System.out.println("OK");
             } else {
-                System.out.println("Прерывание...");
-                System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("sudo rm -f /tmp/showlibs");
-                if ("0".equals(result[0])) {
-                    System.out.println("OK");
-                } else {
-                    System.out.println("Что-то пошло не так");
-                    return false;
-                }
+                System.out.println("Что-то пошло не так");
                 return false;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Переносим либы в папку стенда");
+            result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.zip -d "+path+"/lib/ext/");
+            if ("0".equals(result[0])) {
+                System.out.println("OK");
+            } else {
+                System.out.println("Что-то пошло не так");
+                return false;
+            }
+            System.out.println("Удаляем временные файлы...");
+            result = connectionSsh.runCommand("sudo rm -rf "+path+"/lib/ext/showlibs");
+            if ("0".equals(result[0])) {
+                System.out.println("OK");
+            } else {
+                System.out.println("Что-то пошло не так");
+                return false;
+            }
+        } else {
+            System.out.println("Прерывание...");
+            System.out.println("Удаляем временные файлы...");
+            result = connectionSsh.runCommand("sudo rm -f "+path+"/lib/ext/showlibs");
+            if ("0".equals(result[0])) {
+                System.out.println("OK");
+            } else {
+                System.out.println("Что-то пошло не так");
+                return false;
+            }
+            return false;
         }
         return true;
     }
