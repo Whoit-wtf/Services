@@ -26,6 +26,7 @@ public class UpdateStands {
     String url_patch = null;
     String path = null;
     String typeLibs = null;
+    String typePatch = null;
 
     // Конструктор с инициализацией переменных
     public UpdateStands() {
@@ -59,22 +60,6 @@ public class UpdateStands {
         //запускаем апдейт
     }
 
-    //точка входа
-    /*public void runUpdate() {
-        //переопределяем метод в зависимости от кол-ва нод
-        if (type == 1) update(node1, port);
-        else if (type == 2) update();
-
-    }*/
-
-    private void update(String node1, String port) {
-        ResultCommand result = new ResultCommand();
-
-        ConnectionSsh connectionSsh = new ConnectionSsh(node1);
-
-
-    }
-
     public void update() {
         String[] info;
         List<Stand> stands;
@@ -103,13 +88,13 @@ public class UpdateStands {
 
         String folder = stands.get(0).folder;
         String owner = stands.get(0).owner;
-        if (type == 1){
+        if (type == 1) {
             toDoRenameMe(stands, node1, port);
             path = folder;
-        }else if(type == 2){
+        } else if (type == 2) {
             toDoRenameMe(stands, node1, port);
             toDoRenameMe(stands, node2, port);
-            path = findShare(node1,folder);
+            path = findShare(node1, folder);
         }
 
 
@@ -134,18 +119,18 @@ public class UpdateStands {
             }
         }
         if (("".equals(url_patch))) {
-
+            System.out.println("Начинаем обновлять приклад");
+            if (sufd_patch(node1, url_patch, path, owner)) {
+                System.out.println("");
+            } else {
+                System.out.println("Упс... что-то пошло не так");
+                System.out.println("Прерывание...");
+                return;
+            }
         }
-
-        /*result = connectionSsh.runCommand("bash << EOF" +
-                "\nsudo su - "+owner+"" +
-                "\ncd "+folder+"" +
-                "\nrm nohup.out");
-        System.out.println("Код:" + result.exitStatus);
-        System.out.println("Вывод: " + result.getOutLog());*/
     }
 
-    private static void toDoRenameMe(@NotNull List<Stand> stands, String host, String port){
+    private static void toDoRenameMe(@NotNull List<Stand> stands, String host, String port) {
         ResultCommand result = new ResultCommand();
         String owner = stands.get(0).owner;
         String pid = null;
@@ -209,9 +194,100 @@ public class UpdateStands {
         return true;
     }
 
-    private void sufd_stand_patch(String node1, String url, String path, String owner) {
+    private boolean sufd_patch(String node1, String url, String path, String owner) {
+        System.out.println("Определяем тип архива");
+        Pattern pattern = Pattern.compile(".\\w+$");
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            System.out.println("Тип архива определён " + matcher.group().replace("\n", ""));
+            typePatch = matcher.group().replace("\n", "");
+        } else {
+            System.out.println("Что-то пошло не так...");
+            return false;
+        }
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
+        ResultCommand result;
+        ConnectionSsh connectionSsh = new ConnectionSsh(node1);
+        if (typePatch.equals(".zip")){
+            System.out.println("Скачиваем либы в tmp и проверяем содержимое архива");
+            result = connectionSsh.runCommand("bash << EOF" +
+                    "\nsudo su - " + owner +
+                    "\nmkdir " + path + "/showpatch" +
+                    "\ncd " + path + "/showpatch" +
+                    "\nwget --no-check-certificate " + url +
+                    "\nEOF");
+            System.out.println("Код: " + result.getExitStatus());
+            System.out.println("Вывод: " + result.getOutLog());
+            System.out.println("Определяем в архиве папку sql-migration");
+            //out sql-migration
+            result = connectionSsh.runCommand("sudo unzip -l " + path + "/showpatch/*.zip " +
+                    "| awk 'NR==4{{print $4}}' ");
+            result.setOutLog(result.getOutLog());
+            String sqlMigration = result.getOutLog();
+            System.out.println("Код: " + result.getExitStatus());
+            System.out.println("Вывод: " + result.getOutLog());
+            System.out.println("Определяем в архиве папку sufd.config");
+            //sufd.config
+            result = connectionSsh.runCommand("sudo unzip -l " + path + "/showpatch/*.zip " +
+                    "| awk 'NR==5{{print $4}}' ");
+            result.setOutLog(result.getOutLog());
+            String sufdConfig = result.getOutLog();
+            System.out.println("Код: " + result.getExitStatus());
+            System.out.println("Вывод: " + result.getOutLog());
+            if ("sql-migration/".equals(sqlMigration) && "sufd.config/".equals(sufdConfig)){
+                System.out.println("Бекапим старые sql-migrations");
+                result = connectionSsh.runCommand("sudo mv " + path + "/sql-migrations " +
+                        path + "/sql-migrations.bk_" + formatter.format(date));
+                System.out.println(result.getOutLog());
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                System.out.println("Бекапим старый sufd.config");
+                result = connectionSsh.runCommand("sudo mv " + path + "/sufd.config " +
+                        path + "/sufd.config.bk_" + formatter.format(date));
+                System.out.println(result.getOutLog());
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                System.out.println("Распаковываем приклад");
+                result = connectionSsh.runCommand("sudo unzip " + path + "/showpatch/*.zip -d " + path);
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                System.out.println("Удаляем временные файлы...");
+                result = connectionSsh.runCommand("sudo rm -rf " + path + "/showpatch");
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
 
+            }else {
+                System.out.println("Прерывание...");
+                System.out.println("Удаляем временные файлы...");
+                result = connectionSsh.runCommand("sudo rm -rf " + path + "/showpatch");
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                return false;
+            }
 
+        }
+        return true;
     }
 
     private boolean sufd_libs(String node1, String url, String path, String owner) {
@@ -220,9 +296,9 @@ public class UpdateStands {
         Pattern pattern = Pattern.compile(".\\w+$");
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
-            System.out.println("Тип архива определён "+matcher.group().replace("\n",""));
-            typeLibs =  matcher.group().replace("\n","");
-        }else{
+            System.out.println("Тип архива определён " + matcher.group().replace("\n", ""));
+            typeLibs = matcher.group().replace("\n", "");
+        } else {
             System.out.println("Что-то пошло не так...");
             return false;
         }
@@ -233,16 +309,16 @@ public class UpdateStands {
         System.out.println("Скачиваем либы в tmp и проверяем содержимое архива");
         result = connectionSsh.runCommand("bash << EOF" +
                 "\nsudo su - " + owner +
-                "\nmkdir "+path+"/lib/ext/showlibs"+
-                "\ncd "+path+"/lib/ext/showlibs" +
+                "\nmkdir " + path + "/lib/ext/showlibs" +
+                "\ncd " + path + "/lib/ext/showlibs" +
                 "\nwget --no-check-certificate " + url +
                 "\nEOF");
         System.out.println("Код: " + result.getExitStatus());
         System.out.println("Вывод: " + result.getOutLog());
 
-        if (typeLibs.equals(".zip")){
+        if (typeLibs.equals(".zip")) {
             //out sufd
-            result = connectionSsh.runCommand("sudo unzip -l "+path+"/lib/ext/showlibs/*.zip " +
+            result = connectionSsh.runCommand("sudo unzip -l " + path + "/lib/ext/showlibs/*.zip " +
                     "| awk 'NR==4{{print $4}}' ");
             result.setOutLog(result.getOutLog());
             System.out.println("Код: " + result.getExitStatus());
@@ -261,7 +337,7 @@ public class UpdateStands {
                     return false;
                 }
                 System.out.println("Переносим либы в папку стенда");
-                result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.zip -d "+path+"/lib/ext/");
+                result = connectionSsh.runCommand("sudo unzip " + path + "/lib/ext/showlibs/*.zip -d " + path + "/lib/ext/");
                 if (0 == result.getExitStatus()) {
                     System.out.println("OK");
                 } else {
@@ -269,7 +345,7 @@ public class UpdateStands {
                     return false;
                 }
                 System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("sudo rm -rf "+path+"/lib/ext/showlibs");
+                result = connectionSsh.runCommand("sudo rm -rf " + path + "/lib/ext/showlibs");
                 if (0 == result.getExitStatus()) {
                     System.out.println("OK");
                 } else {
@@ -279,7 +355,7 @@ public class UpdateStands {
             } else {
                 System.out.println("Прерывание...");
                 System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("sudo rm -f "+path+"/lib/ext/showlibs");
+                result = connectionSsh.runCommand("sudo rm -rf " + path + "/lib/ext/showlibs");
                 if (0 == result.getExitStatus()) {
                     System.out.println("OK");
                 } else {
@@ -289,7 +365,7 @@ public class UpdateStands {
                 return false;
             }
             return true;
-        }else if(typeLibs.equals(".war")){
+        } else if (typeLibs.equals(".war")) {
             System.out.println("Бекапим старые либы");
             result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
                     path + "/lib/ext/sufd.bk_" + formatter.format(date));
@@ -301,7 +377,7 @@ public class UpdateStands {
                 return false;
             }
             System.out.println("Распаковываем war");
-            result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.war");
+            result = connectionSsh.runCommand("sudo unzip " + path + "/lib/ext/showlibs/*.war");
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
@@ -310,8 +386,8 @@ public class UpdateStands {
             }
             System.out.println("Создаем папку для либ");
             result = connectionSsh.runCommand("bash << EOF" +
-                    "\nsudo su - "+owner+"" +
-                    "\nmkdir "+path+"/lib/ext/sufd"+
+                    "\nsudo su - " + owner + "" +
+                    "\nmkdir " + path + "/lib/ext/sufd" +
                     "EOF");
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");
@@ -320,8 +396,8 @@ public class UpdateStands {
                 return false;
             }
             System.out.println("Переносим либы в папку стенда");
-            result = connectionSsh.runCommand("mv "+path+"/lib/ext/showlibs/WEB-INF/lib/*.jar " +
-                    ""+path+"/lib/ext/sufd/");
+            result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/showlibs/WEB-INF/lib/*.jar " +
+                    "" + path + "/lib/ext/sufd/");
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
@@ -329,7 +405,7 @@ public class UpdateStands {
                 return false;
             }
             System.out.println("Удаляем временные файлы...");
-            result = connectionSsh.runCommand("sudo rm -rf "+path+"/lib/ext/showlibs");
+            result = connectionSsh.runCommand("sudo rm -rf " + path + "/lib/ext/showlibs");
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
@@ -338,30 +414,22 @@ public class UpdateStands {
             }
 
             return true;
-        }else {
+        } else {
             System.out.println("Что-то пошло не так в определении типа архива");
             return false;
         }
 
     }
-    public String findShare(String node1, String folder){
+
+    public String findShare(String node1, String folder) {
         ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         System.out.println("Начинаем поиск share папки");
-        result = connectionSsh.runCommand("sudo ls -lh "+folder+" | grep lib | awk 'NR==1{{print $11}}'");
-        /*Pattern pattern = Pattern.compile("/\\w+$");
-        Matcher matcher = pattern.matcher(result.getOutLog());
-        if (matcher.find()) {
-            System.out.println("Папка найдена: "+matcher.group());
-            return matcher.group();
-        }else{
-            System.out.println("Что-то пошло не так...");
-            return null;
-        }*/
-        if(result.getOutLog() != null){
-            System.out.println("Папка найдена: "+ result.getOutLog().replace("/lib",""));
-            return result.getOutLog().replace("/lib","");
-        }else{
+        result = connectionSsh.runCommand("sudo ls -lh " + folder + " | grep lib | awk 'NR==1{{print $11}}'");
+        if (result.getOutLog() != null) {
+            System.out.println("Папка найдена: " + result.getOutLog().replace("/lib", ""));
+            return result.getOutLog().replace("/lib", "");
+        } else {
             System.out.println("Что-то пошло не так...");
             return null;
         }
