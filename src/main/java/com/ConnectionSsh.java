@@ -17,8 +17,9 @@ public class ConnectionSsh {
         this.host = host;
     }
 
-    public String[] runCommand(String command1) {
-        String[] result = new String[2];
+    public ResultCommand runCommand(String command1) {
+        //String[] result = new String[2];
+        ResultCommand resultCommand = new ResultCommand();
         try {
             JSch jsch = new JSch();
             //Отключаем првоерку ключа в hosts
@@ -44,17 +45,21 @@ public class ConnectionSsh {
 
             //по байтово считываем вывод (1000000 байт = 1 Мб) чем выше тем больше вывода будет
             byte[] tmp = new byte[1000000];
+            
             while (true) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1000000);
                     if (i < 0) break;
                     // создаём строку из полученных байтов
-                    result[1] = new String(tmp, 0, i);
+                    //result.setOutLog(new String(tmp, 0, i);
+                    resultCommand.outLog = new String(tmp, 0, i);
+                    
                     //System.out.print(new String(tmp, 0, i));
                 }
                 if (channel.isClosed()) {
                     //if(in.available() > 0) continue;
-                    result[0] = Integer.toString(channel.getExitStatus());
+                    //result.exitStatus = Integer.toString(channel.getExitStatus());
+                    resultCommand.setExitStatus(channel.getExitStatus());
                     // System.out.println("exit-status: "+channel.getExitStatus());
                     break;
 
@@ -82,7 +87,7 @@ public class ConnectionSsh {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return resultCommand;
     }
 }
 

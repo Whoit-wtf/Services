@@ -1,6 +1,7 @@
 package com.database;
 
 import com.ConnectionSsh;
+import com.ResultCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,19 +45,20 @@ public class SearchInfo {
 
     public String[] run(String node1, String node2, String port) {
         String[] info = new String[5];
-        String[] result;
+        //ResultCommand result = new ResultCommand();
+        ResultCommand result = new ResultCommand();
 
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         result = connectionSsh.runCommand("ps aux | grep " + port + " | grep -v grep");
-        if (result[1] == null) {
+        if (result.getOutLog() == null) {
             System.out.println("ps aux | grep " + port);
             System.out.println("не дал результата, похоже стенд выключен...");
 
         } else {
-            //System.out.println("Код: " + result[0]);
-            //System.out.println("Вывод: " + result[1]);
+            //System.out.println("Код: " + result.exitStatus);
+            //System.out.println("Вывод: " + result.getOutLog());
             Pattern pattern = Pattern.compile("-Djetty.home=\\S+");
-            Matcher matcher = pattern.matcher(result[1]);
+            Matcher matcher = pattern.matcher(result.getOutLog());
             if (matcher.find()) {
                 //System.out.println("Папка стенда " + matcher.group().split("=")[1]);
                 info[0] = node1;
@@ -65,9 +67,9 @@ public class SearchInfo {
                 info[3] = matcher.group().split("=")[1].replace('\n', ' ');
             }
             result = connectionSsh.runCommand("ls -lh " + info[3] + "| awk 'NR==2{{print $3}}'");
-            //System.out.println("Код: " + result[0]);
-            // System.out.println("Вывод: " + result[1]);
-            info[4] = result[1].replace('\n', ' ');
+            //System.out.println("Код: " + result.exitStatus);
+            // System.out.println("Вывод: " + result.getOutLog());
+            info[4] = result.getOutLog().replace('\n', ' ');
             System.out.println("Собранная информация:");
             System.out.println("Первая нода: " + info[0]);
             System.out.println("Вторая нода: " + info[1]);

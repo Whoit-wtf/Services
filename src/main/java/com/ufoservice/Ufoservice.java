@@ -1,6 +1,7 @@
 package com.ufoservice;
 
 import com.ConnectionSsh;
+import com.ResultCommand;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,14 +29,14 @@ public class Ufoservice {
 
 
     public void runUfoservice() {
-        String[] result;
+        ResultCommand result = new ResultCommand();
 
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Ищем папку ufoservice...");
         result = connectionSsh.runCommand("sudo find /oracle/ -type d -name \"ufoservice\"");
-        System.out.println("Найденные директории:\n" + result[1]);
-        result[1] = result[1].replace('\n', ' ');
-        String[] dirServicesList = result[1].split(" ");
+        System.out.println("Найденные директории:\n" + result.getOutLog());
+        result.setOutLog(result.getOutLog());
+        String[] dirServicesList = result.getOutLog().split(" ");
 
         if (dirServicesList.length >= 2) {
             System.out.println("начинаем перебор...");
@@ -69,12 +70,12 @@ public class Ufoservice {
     }
 
     void run(String dirService) {
-        String[] result;
+        ResultCommand result = new ResultCommand();
 
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Определяем владельца...");
         result = connectionSsh.runCommand("sudo ls -l " + dirService + " | awk 'NR==2{{print $3}}'");
-        String owner = result[1].replace('\n', ' ');
+        String owner = result.getOutLog().replace("\n", "");
         System.out.println("Владелец: " + owner);
         System.out.println("Становимся владельцем и запускаем ufoservice...");
         result = connectionSsh.runCommand("bash << EOF" +
