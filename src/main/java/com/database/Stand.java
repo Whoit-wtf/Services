@@ -1,6 +1,6 @@
 package com.database;
 
-public class Stands {
+public class Stand {
     // Поля класса
     public int id;
     public String port;
@@ -11,7 +11,7 @@ public class Stands {
 
 
     // Конструктор
-    public Stands(int id, String node1, String node2, String port, String folder, String owner) {
+    public Stand(int id, String node1, String node2, String port, String folder, String owner) {
         this.id = id;
         this.node1 = node1;
         this.node2 = node2;

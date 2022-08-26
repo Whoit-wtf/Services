@@ -30,18 +30,18 @@ public class DbHandler {
         this.connection = DriverManager.getConnection(CON_STR);
     }
 
-    public List<Stands> getAllStands() {
+    public List<Stand> getAllStands() {
         // Statement используется для того, чтобы выполнить sql-запрос
         try (Statement statement = this.connection.createStatement()) {
             // В данный список будем загружать данные
-            List<Stands> stands = new ArrayList<Stands>();
+            List<Stand> stands = new ArrayList<Stand>();
             // В resultSet будет храниться результат нашего запроса,
             // который выполняется командой statement.executeQuery()
             ResultSet resultSet = statement.executeQuery("SELECT id, port, node1, node2, owner," +
                     " folder FROM standsInfo");
             // Проходимся по нашему resultSet и заносим данные
             while (resultSet.next()) {
-                stands.add(new Stands(
+                stands.add(new Stand(
                         resultSet.getInt("id"),
                         resultSet.getString("port"),
                         resultSet.getString("node1"),
@@ -56,18 +56,18 @@ public class DbHandler {
         }
     }
 
-    public List<Stands> checkStands(String node) {
+    public List<Stand> checkStands(String node) {
         // Statement используется для того, чтобы выполнить sql-запрос
         try (Statement statement = this.connection.createStatement()) {
             // В данный список будем загружать данные
-            List<Stands> stands = new ArrayList<>();
+            List<Stand> stands = new ArrayList<>();
             // В resultSet будет храниться результат нашего запроса,
             // который выполняется командой statement.executeQuery()
             ResultSet resultSet = statement.executeQuery("SELECT id, node1, node2 , port, folder, owner " +
                     " FROM standsInfo WHERE node1 = '" + node + "'");
             // Проходимся по нашему resultSet и заносим данные
             while (resultSet.next()) {
-                stands.add(new Stands(
+                stands.add(new Stand(
                         resultSet.getInt("id"),
                         resultSet.getString("node1"),
                         resultSet.getString("node2"),

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.database.*;
 import com.ConnectionSsh;
+import org.jetbrains.annotations.NotNull;
 
 public class UpdateStands {
 
@@ -33,14 +34,11 @@ public class UpdateStands {
             if (type == 1) {
                 System.out.println("Введите адрес ноды: ");
                 this.node1 = reader.readLine().replace(" ", "");
-                ;
             } else if (type == 2) {
                 System.out.println("Введите адрес первой ноды: ");
                 this.node1 = reader.readLine().replace(" ", "");
-                ;
                 System.out.println("Введите адрес второй ноды: ");
                 this.node2 = reader.readLine().replace(" ", "");
-                ;
             }
             System.out.println("Введите порт: ");
             this.port = reader.readLine().replace(" ", "");
@@ -59,7 +57,7 @@ public class UpdateStands {
     public void runUpdate() {
         //переопределяем метод в зависимости от кол-ва нод
         if (type == 1) update(node1, port);
-        else if (type == 2) update(node1, node2, port);
+        else if (type == 2) update();
 
     }
 
@@ -71,10 +69,9 @@ public class UpdateStands {
 
     }
 
-    private void update(String node1, String node2, String port) {
-        String[] result;
+    private void update() {
         String[] info;
-        List<Stands> stands;
+        List<Stand> stands;
 
         ActionStands actionStands = new ActionStands();
         System.out.println("Проверяем стенд " + node1 + " в БД...");
@@ -100,45 +97,10 @@ public class UpdateStands {
 
         String folder = stands.get(0).folder;
         String owner = stands.get(0).owner;
-        String pid;
-        ConnectionSsh connectionSsh = new ConnectionSsh(node1);
-        System.out.println("Получаем pid процесса на первой ноде");
-        result = connectionSsh.runCommand("sudo ps aux | grep " + port + " " +
-                "| grep [S]TAND | awk 'NR==1{{print $2}}'");
-        pid = result[1].replace("\n", "");
-        //System.out.println("Код:" + result[0]);
-        System.out.println("Вывод: \n" + result[1]);
-        if (result[1].equals("null")) {
-            System.out.println("Процесс не запущен");
-        } else {
-            System.out.println("Останавливаем процесс...");
-            result = connectionSsh.runCommand("bash << EOF" +
-                    "\nsudo su - " + owner +
-                    "\nkill -9 " + pid + "");
-            //System.out.println("Код:" + result[0]);
-            System.out.println("Вывод: " + result[1]);
-            System.out.println("OK");
-        }
-        ConnectionSsh connectionSsh2 = new ConnectionSsh(node2);
-        System.out.println("Получаем pid процесса на второй ноде");
-        result = connectionSsh2.runCommand("sudo ps aux | grep " + port + " " +
-                "| grep [S]TAND | awk 'NR==1{{print $2}}'");
-        pid = result[1].replace("\n", "");
-        //System.out.println("Код:" + result[0]);
-        System.out.println("Вывод: \n" + result[1]);
-        if (result[1].equals("null")) {
-            System.out.println("Процесс не запущен");
-        } else {
-            System.out.println("Останавливаем процесс...");
-            result = connectionSsh2.runCommand("bash << EOF" +
-                    "\nsudo su - " + owner +
-                    "\nkill -9 " + pid + "");
-            //System.out.println("Код:" + result[0]);
-            System.out.println("Вывод: " + result[1]);
-            System.out.println("OK");
-        }
+        toDoRenameMe(stands, node1, port);
+        toDoRenameMe(stands, node2, port);
 
-        if (url_server != null) {
+        if (!"".equals(url_server)) {
             System.out.println("Начинаем обновлять ядро");
             if (sufd_server(node1, url_server, "/oracle/share", owner)) {
                 System.out.println("");
@@ -148,7 +110,7 @@ public class UpdateStands {
                 return;
             }
         }
-        if (url_libs != null) {
+        if (!"".equals(url_libs)) {
             System.out.println("Начинаем обновлять либы");
             if (sufd_libs(node1, url_libs, "/oracle/share", owner)) {
                 System.out.println("");
@@ -158,7 +120,7 @@ public class UpdateStands {
                 return;
             }
         }
-        if ((url_patch != null)) {
+        if (("".equals(url_patch))) {
 
         }
 
@@ -168,6 +130,31 @@ public class UpdateStands {
                 "\nrm nohup.out");
         System.out.println("Код:" + result[0]);
         System.out.println("Вывод: " + result[1]);*/
+    }
+
+    private static void toDoRenameMe(@NotNull List<Stand> stands, String host, String port){
+        String[] result;
+        String owner = stands.get(0).owner;
+        String pid = null;
+        ConnectionSsh connectionSsh = new ConnectionSsh(host);
+        System.out.printf("Получаем pid процесса на ноде [%s]\n", host);
+        result = connectionSsh.runCommand("sudo ps aux | grep " + port + " " +
+                "| grep [S]TAND | awk 'NR==1{{print $2}}'");
+        if (null == result[1]) {
+            System.out.println("Процесс не запущен");
+            return;
+        }
+        pid = result[1].replace("\n", "");
+        //System.out.println("Код:" + result[0]);
+        System.out.println("Вывод: \n" + result[1]);
+        System.out.println("Останавливаем процесс...");
+        result = connectionSsh.runCommand("bash << EOF" +
+                "\nsudo su - " + owner +
+                "\nkill -9 " + pid + "");
+        //System.out.println("Код:" + result[0]);
+        System.out.println("Вывод: " + result[1]);
+        System.out.println("OK");
+
     }
 
 
@@ -243,7 +230,7 @@ public class UpdateStands {
             if (input.equals("1")) {
                 System.out.println("Продолжаем...");
                 System.out.println("Бекапим старые либы...");
-                result = connectionSsh.runCommand("mv " + path + "/lib/ext/sufd " +
+                result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
                         path + "/lib/ext/sufd_" + formatter.format(date));
                 if ("0".equals(result[0])) {
                     System.out.println("OK");
@@ -252,7 +239,7 @@ public class UpdateStands {
                     return false;
                 }
                 System.out.println("Переносим либы в папку стенда");
-                result = connectionSsh.runCommand("mv /tmp/showlibs/sufd " + path + "/lib/ext/");
+                result = connectionSsh.runCommand("sudo mv /tmp/showlibs/sufd " + path + "/lib/ext/");
                 if ("0".equals(result[0])) {
                     System.out.println("OK");
                 } else {
@@ -260,7 +247,7 @@ public class UpdateStands {
                     return false;
                 }
                 System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("rm -f /tmp/showlibs");
+                result = connectionSsh.runCommand("sudo rm -f /tmp/showlibs");
                 if ("0".equals(result[0])) {
                     System.out.println("OK");
                 } else {
@@ -270,7 +257,7 @@ public class UpdateStands {
             } else {
                 System.out.println("Прерывание...");
                 System.out.println("Удаляем временные файлы...");
-                result = connectionSsh.runCommand("rm -f /tmp/showlibs");
+                result = connectionSsh.runCommand("sudo rm -f /tmp/showlibs");
                 if ("0".equals(result[0])) {
                     System.out.println("OK");
                 } else {

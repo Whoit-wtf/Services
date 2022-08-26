@@ -69,9 +69,9 @@ public class ActionStands {
         try {
             // Создаем экземпляр по работе с БД
             DbHandler dbHandler = DbHandler.getInstance();
-            List<Stands> stands = dbHandler.getAllStands();
+            List<Stand> stands = dbHandler.getAllStands();
             // Получаем все записи и выводим их на консоль
-            for (Stands stand : stands) {
+            for (Stand stand : stands) {
                 System.out.println(stand.toString());
             }
         } catch (
@@ -141,8 +141,8 @@ public class ActionStands {
         return result;
     }
 
-    public List<Stands> getStands(String node1) {
-        List<Stands> result = null;
+    public List<Stand> getStands(String node1) {
+        List<Stand> result = null;
         System.out.println("Получаем данные по стенду " + node1);
         if (node1 == null) {
             System.out.println("Пришёл null");
