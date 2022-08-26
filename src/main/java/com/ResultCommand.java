@@ -18,7 +18,7 @@ public class ResultCommand {
 
     public void setOutLog(String outLog) {
         if (outLog != null){
-            this.outLog = outLog.replace("\n", "");
+            this.outLog = outLog;
         }
 
     }

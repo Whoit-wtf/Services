@@ -46,7 +46,7 @@ public class SearchInfo {
     public String[] run(String node1, String node2, String port) {
         String[] info = new String[5];
         //ResultCommand result = new ResultCommand();
-        ResultCommand result = new ResultCommand();
+        ResultCommand result;
 
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         result = connectionSsh.runCommand("ps aux | grep " + port + " | grep -v grep");
@@ -64,12 +64,12 @@ public class SearchInfo {
                 info[0] = node1;
                 info[1] = node2;
                 info[2] = port;
-                info[3] = matcher.group().split("=")[1].replace('\n', ' ');
+                info[3] = matcher.group().split("=")[1].replace("\n", "");
             }
             result = connectionSsh.runCommand("ls -lh " + info[3] + "| awk 'NR==2{{print $3}}'");
             //System.out.println("Код: " + result.exitStatus);
             // System.out.println("Вывод: " + result.getOutLog());
-            info[4] = result.getOutLog().replace('\n', ' ');
+            info[4] = result.getOutLog().replace("\n", "");
             System.out.println("Собранная информация:");
             System.out.println("Первая нода: " + info[0]);
             System.out.println("Вторая нода: " + info[1]);

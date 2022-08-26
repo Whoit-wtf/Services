@@ -70,7 +70,7 @@ public class Ufoservice {
     }
 
     void run(String dirService) {
-        ResultCommand result = new ResultCommand();
+        ResultCommand result;
 
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Определяем владельца...");

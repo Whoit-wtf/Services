@@ -84,6 +84,14 @@ public class UpdateStands {
             System.out.println("Прерывание...");
             return;
         }
+        //Проверяем место на диске
+        if (checkDiskSpace(node1)){
+            System.out.println("");
+        }else{
+            System.out.println("Упс... Похоже места не хватает");
+            System.out.println("Прерывание...");
+            return;
+        }
         //Получаем список информации по стенду
 
         String folder = stands.get(0).folder;
@@ -97,13 +105,7 @@ public class UpdateStands {
             path = findShare(node1, folder);
         }
 
-        if (checkDiskSpace(node1)){
-            System.out.println("");
-        }else{
-            System.out.println("Упс... Похоже места не хватает");
-            System.out.println("Прерывание...");
-            return;
-        }
+
 
         if (!"".equals(url_server)) {
             System.out.println("Начинаем обновлять ядро");
@@ -138,7 +140,7 @@ public class UpdateStands {
     }
 
     private static void toDoRenameMe(@NotNull List<Stand> stands, String host, String port) {
-        ResultCommand result = new ResultCommand();
+        ResultCommand result;
         String owner = stands.get(0).owner;
         String pid = null;
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
@@ -162,9 +164,8 @@ public class UpdateStands {
 
     }
 
-
     private boolean sufd_server(String node1, String url, String path, String owner) {
-        ResultCommand result = new ResultCommand();
+        ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         System.out.println("Бекапим ядро...");
         result = connectionSsh.runCommand("bash << EOF" +
@@ -231,7 +232,7 @@ public class UpdateStands {
             result = connectionSsh.runCommand("sudo unzip -l " + path + "/showpatch/*.zip " +
                     "| awk 'NR==4{{print $4}}' ");
             result.setOutLog(result.getOutLog());
-            String sqlMigration = result.getOutLog();
+            String sqlMigration = result.getOutLog().replace("\n", "");
             System.out.println("Код: " + result.getExitStatus());
             System.out.println("Вывод: " + result.getOutLog());
             System.out.println("Определяем в архиве папку sufd.config");
@@ -239,7 +240,7 @@ public class UpdateStands {
             result = connectionSsh.runCommand("sudo unzip -l " + path + "/showpatch/*.zip " +
                     "| awk 'NR==5{{print $4}}' ");
             result.setOutLog(result.getOutLog());
-            String sufdConfig = result.getOutLog();
+            String sufdConfig = result.getOutLog().replace("\n", "");
             System.out.println("Код: " + result.getExitStatus());
             System.out.println("Вывод: " + result.getOutLog());
             if ("sql-migration/".equals(sqlMigration) && "sufd.config/".equals(sufdConfig)){
@@ -331,7 +332,7 @@ public class UpdateStands {
             System.out.println("Код: " + result.getExitStatus());
             System.out.println("Вывод: " + result.getOutLog());
 
-            if ("sufd/".equals(result.getOutLog())) {
+            if ("sufd/".equals(result.getOutLog().replace("\n", ""))) {
                 System.out.println("Продолжаем...");
                 System.out.println("Бекапим старые либы...");
                 result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
