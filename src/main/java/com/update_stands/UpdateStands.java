@@ -97,6 +97,13 @@ public class UpdateStands {
             path = findShare(node1, folder);
         }
 
+        if (checkDiskSpace(node1)){
+            System.out.println("");
+        }else{
+            System.out.println("Упс... Похоже места не хватает");
+            System.out.println("Прерывание...");
+            return;
+        }
 
         if (!"".equals(url_server)) {
             System.out.println("Начинаем обновлять ядро");
@@ -433,5 +440,25 @@ public class UpdateStands {
             System.out.println("Что-то пошло не так...");
             return null;
         }
+    }
+    public boolean checkDiskSpace(String host){
+        ResultCommand result;
+        ConnectionSsh connectionSsh = new ConnectionSsh(host);
+        System.out.println("Проверка места");
+        result = connectionSsh.runCommand("sudo df -h");
+        System.out.println(result.getOutLog());
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(System.in));
+            System.out.println("Хватает места?");
+            System.out.println("1. Да\n2. Нет");
+            int input = Integer.parseInt(reader.readLine());
+            if (input == 1){
+                return true;
+            }else return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
