@@ -46,7 +46,7 @@ public class Main {
             switch (x) {
                 case 1:
                     UpdateStands updateStands = new UpdateStands();
-                    updateStands.runUpdate();
+                    updateStands.update();
                     break;
                 case 2:
                     // вызов метода 2

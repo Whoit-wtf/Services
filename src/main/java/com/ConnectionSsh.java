@@ -52,7 +52,7 @@ public class ConnectionSsh {
                     if (i < 0) break;
                     // создаём строку из полученных байтов
                     //result.setOutLog(new String(tmp, 0, i);
-                    resultCommand.outLog = new String(tmp, 0, i);
+                    resultCommand.setOutLog(new String(tmp, 0, i));
                     
                     //System.out.print(new String(tmp, 0, i));
                 }

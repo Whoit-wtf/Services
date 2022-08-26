@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.ResultCommand;
 import com.database.*;
@@ -22,6 +24,8 @@ public class UpdateStands {
     String url_server = null;
     String url_libs = null;
     String url_patch = null;
+    String path = null;
+    String typeLibs = null;
 
     // Конструктор с инициализацией переменных
     public UpdateStands() {
@@ -52,15 +56,16 @@ public class UpdateStands {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //запускаем апдейт
     }
 
     //точка входа
-    public void runUpdate() {
+    /*public void runUpdate() {
         //переопределяем метод в зависимости от кол-ва нод
         if (type == 1) update(node1, port);
         else if (type == 2) update();
 
-    }
+    }*/
 
     private void update(String node1, String port) {
         ResultCommand result = new ResultCommand();
@@ -70,7 +75,7 @@ public class UpdateStands {
 
     }
 
-    private void update() {
+    public void update() {
         String[] info;
         List<Stand> stands;
 
@@ -98,12 +103,19 @@ public class UpdateStands {
 
         String folder = stands.get(0).folder;
         String owner = stands.get(0).owner;
-        toDoRenameMe(stands, node1, port);
-        toDoRenameMe(stands, node2, port);
+        if (type == 1){
+            toDoRenameMe(stands, node1, port);
+            path = folder;
+        }else if(type == 2){
+            toDoRenameMe(stands, node1, port);
+            toDoRenameMe(stands, node2, port);
+            path = findShare(node1,folder);
+        }
+
 
         if (!"".equals(url_server)) {
             System.out.println("Начинаем обновлять ядро");
-            if (sufd_server(node1, url_server, "/oracle/share", owner)) {
+            if (sufd_server(node1, url_server, path, owner)) {
                 System.out.println("");
             } else {
                 System.out.println("Упс... что-то пошло не так");
@@ -113,7 +125,7 @@ public class UpdateStands {
         }
         if (!"".equals(url_libs)) {
             System.out.println("Начинаем обновлять либы");
-            if (sufd_libs(node1, url_libs, "/oracle/share", owner)) {
+            if (sufd_libs(node1, url_libs, path, owner)) {
                 System.out.println("");
             } else {
                 System.out.println("Упс... что-то пошло не так");
@@ -168,9 +180,9 @@ public class UpdateStands {
                 "\ncd " + path + "/webapps" +
                 "\nrename .war .war.bk *.war" +
                 "\nEOF");
-        System.out.println("Код: " + result.exitStatus);
+        System.out.println("Код: " + result.getExitStatus());
         System.out.println("Вывод: " + result.getOutLog());
-        if (result.exitStatus.equals("0")) {
+        if (0 == result.getExitStatus()) {
             System.out.println("OK");
         } else {
             System.out.println("Что-то пошло не так");
@@ -183,9 +195,9 @@ public class UpdateStands {
                 "\ncd " + path + "/webapps" +
                 "\nwget --no-check-certificate " + url +
                 "\nEOF");
-        System.out.println("Код: " + result.exitStatus);
+        System.out.println("Код: " + result.getExitStatus());
         System.out.println("Вывод: " + result.getOutLog());
-        if (result.exitStatus.equals("0")) {
+        if (0 == result.getExitStatus()) {
             System.out.println("OK");
         } else {
             System.out.println("Что-то пошло не так");
@@ -204,7 +216,19 @@ public class UpdateStands {
 
     private boolean sufd_libs(String node1, String url, String path, String owner) {
 
-        ResultCommand result = new ResultCommand();
+        System.out.println("Определяем тип архива");
+        Pattern pattern = Pattern.compile(".\\w+$");
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            System.out.println("Тип архива определён "+matcher.group().replace("\n",""));
+            typeLibs =  matcher.group().replace("\n","");
+        }else{
+            System.out.println("Что-то пошло не так...");
+            return false;
+        }
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
+        ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
         System.out.println("Скачиваем либы в tmp и проверяем содержимое архива");
         result = connectionSsh.runCommand("bash << EOF" +
@@ -213,31 +237,92 @@ public class UpdateStands {
                 "\ncd "+path+"/lib/ext/showlibs" +
                 "\nwget --no-check-certificate " + url +
                 "\nEOF");
-        System.out.println("Код: " + result.exitStatus);
+        System.out.println("Код: " + result.getExitStatus());
         System.out.println("Вывод: " + result.getOutLog());
-        //out sufd
-        result = connectionSsh.runCommand("sudo unzip -l "+path+"/lib/ext/showlibs/*.zip " +
-                "| awk 'NR==4{{print $4}}' ");
-        result.setOutLog(result.getOutLog().replace("\n","");
-        System.out.println("Код: " + result.exitStatus);
-        System.out.println("Вывод: " + result.getOutLog());
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
-        if ("sufd/".equals(result.getOutLog())) {
-            System.out.println("Продолжаем...");
-            System.out.println("Бекапим старые либы...");
+
+        if (typeLibs.equals(".zip")){
+            //out sufd
+            result = connectionSsh.runCommand("sudo unzip -l "+path+"/lib/ext/showlibs/*.zip " +
+                    "| awk 'NR==4{{print $4}}' ");
+            result.setOutLog(result.getOutLog());
+            System.out.println("Код: " + result.getExitStatus());
+            System.out.println("Вывод: " + result.getOutLog());
+
+            if ("sufd/".equals(result.getOutLog())) {
+                System.out.println("Продолжаем...");
+                System.out.println("Бекапим старые либы...");
+                result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
+                        path + "/lib/ext/sufd.bk_" + formatter.format(date));
+                System.out.println(result.getOutLog());
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                System.out.println("Переносим либы в папку стенда");
+                result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.zip -d "+path+"/lib/ext/");
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                System.out.println("Удаляем временные файлы...");
+                result = connectionSsh.runCommand("sudo rm -rf "+path+"/lib/ext/showlibs");
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+            } else {
+                System.out.println("Прерывание...");
+                System.out.println("Удаляем временные файлы...");
+                result = connectionSsh.runCommand("sudo rm -f "+path+"/lib/ext/showlibs");
+                if (0 == result.getExitStatus()) {
+                    System.out.println("OK");
+                } else {
+                    System.out.println("Что-то пошло не так");
+                    return false;
+                }
+                return false;
+            }
+            return true;
+        }else if(typeLibs.equals(".war")){
+            System.out.println("Бекапим старые либы");
             result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
                     path + "/lib/ext/sufd.bk_" + formatter.format(date));
             System.out.println(result.getOutLog());
-            if ("0".equals(result.exitStatus)) {
+            if (0 == result.getExitStatus()) {
+                System.out.println("OK");
+            } else {
+                System.out.println("Что-то пошло не так");
+                return false;
+            }
+            System.out.println("Распаковываем war");
+            result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.war");
+            if (0 == result.getExitStatus()) {
+                System.out.println("OK");
+            } else {
+                System.out.println("Что-то пошло не так");
+                return false;
+            }
+            System.out.println("Создаем папку для либ");
+            result = connectionSsh.runCommand("bash << EOF" +
+                    "\nsudo su - "+owner+"" +
+                    "\nmkdir "+path+"/lib/ext/sufd"+
+                    "EOF");
+            if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
                 System.out.println("Что-то пошло не так");
                 return false;
             }
             System.out.println("Переносим либы в папку стенда");
-            result = connectionSsh.runCommand("sudo unzip "+path+"/lib/ext/showlibs/*.zip -d "+path+"/lib/ext/");
-            if ("0".equals(result.exitStatus)) {
+            result = connectionSsh.runCommand("mv "+path+"/lib/ext/showlibs/WEB-INF/lib/*.jar " +
+                    ""+path+"/lib/ext/sufd/");
+            if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
                 System.out.println("Что-то пошло не так");
@@ -245,24 +330,40 @@ public class UpdateStands {
             }
             System.out.println("Удаляем временные файлы...");
             result = connectionSsh.runCommand("sudo rm -rf "+path+"/lib/ext/showlibs");
-            if ("0".equals(result.exitStatus)) {
+            if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
                 System.out.println("Что-то пошло не так");
                 return false;
             }
-        } else {
-            System.out.println("Прерывание...");
-            System.out.println("Удаляем временные файлы...");
-            result = connectionSsh.runCommand("sudo rm -f "+path+"/lib/ext/showlibs");
-            if ("0".equals(result.exitStatus)) {
-                System.out.println("OK");
-            } else {
-                System.out.println("Что-то пошло не так");
-                return false;
-            }
+
+            return true;
+        }else {
+            System.out.println("Что-то пошло не так в определении типа архива");
             return false;
         }
-        return true;
+
+    }
+    public String findShare(String node1, String folder){
+        ResultCommand result;
+        ConnectionSsh connectionSsh = new ConnectionSsh(node1);
+        System.out.println("Начинаем поиск share папки");
+        result = connectionSsh.runCommand("sudo ls -lh "+folder+" | grep lib | awk 'NR==1{{print $11}}'");
+        /*Pattern pattern = Pattern.compile("/\\w+$");
+        Matcher matcher = pattern.matcher(result.getOutLog());
+        if (matcher.find()) {
+            System.out.println("Папка найдена: "+matcher.group());
+            return matcher.group();
+        }else{
+            System.out.println("Что-то пошло не так...");
+            return null;
+        }*/
+        if(result.getOutLog() != null){
+            System.out.println("Папка найдена: "+ result.getOutLog().replace("/lib",""));
+            return result.getOutLog().replace("/lib","");
+        }else{
+            System.out.println("Что-то пошло не так...");
+            return null;
+        }
     }
 }
