@@ -1,7 +1,6 @@
 package com.database;
 
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,7 +11,7 @@ import java.util.Scanner;
 public class ActionStands {
 
     //точка входа в действия
-    public void main(){
+    public void main() {
         Scanner scan = new Scanner(System.in);
         String s = "";
         int x = 0;
@@ -32,46 +31,47 @@ public class ActionStands {
                 System.out.println("Неверный ввод");
             }
             try {
-            switch (x) {
-                case 1:
-                    showStands();
-                    break;
-                case 2:
-                    System.out.println("Введите адрес ноды без otr.ru");
-                    String node = reader.readLine();
-                    checkStands(node);
-                    break;
-                case 3:
-                    System.out.println("Введите адрес ноды без otr.ru");
-                    String node1 = reader.readLine();
-                    delStands(node1);
-                    break;
-                case 4:
-                    SearchInfo searchInfo = new SearchInfo(true);
-                    info = searchInfo.info;
-                    if(checkStands(info[0])){
-                        addStands(info[0], info[1], info[2], info[3], info[4]);
-                    }else {
-                        if(info[0] == null){
-                            System.out.println("...");
-                        }else System.out.println("Стенд уже имеется в БД");
-
+                switch (x) {
+                    case 1:
+                        showStands();
                         break;
-                    }
-                    break;
+                    case 2:
+                        System.out.println("Введите адрес ноды без otr.ru");
+                        String node = reader.readLine();
+                        checkStands(node);
+                        break;
+                    case 3:
+                        System.out.println("Введите адрес ноды без otr.ru");
+                        String node1 = reader.readLine();
+                        delStands(node1);
+                        break;
+                    case 4:
+                        SearchInfo searchInfo = new SearchInfo(true);
+                        info = searchInfo.info;
+                        if (checkStands(info[0])) {
+                            addStands(info[0], info[1], info[2], info[3], info[4]);
+                        } else {
+                            if (info[0] == null) {
+                                System.out.println("...");
+                            } else System.out.println("Стенд уже имеется в БД");
+
+                            break;
+                        }
+                        break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    public void showStands(){
+
+    public void showStands() {
         try {
             // Создаем экземпляр по работе с БД
             DbHandler dbHandler = DbHandler.getInstance();
             List<Stands> stands = dbHandler.getAllStands();
             // Получаем все записи и выводим их на консоль
-            for (Stands stand: stands) {
+            for (Stands stand : stands) {
                 System.out.println(stand.toString());
             }
         } catch (
@@ -80,18 +80,18 @@ public class ActionStands {
         }
     }
 
-    public void delStands(String node1){
+    public void delStands(String node1) {
         boolean result = false;
         try {
             // Создаем экземпляр по работе с БД
             DbHandler dbHandler = DbHandler.getInstance();
             result = dbHandler.checkStands(node1).isEmpty();
-            if (result){
+            if (result) {
                 System.out.println(node1 + " не найден в БД");
-            }else{
+            } else {
                 // Удаление записи с node1
                 dbHandler.deleteStands(node1);
-                System.out.println("Стенд "+node1+" удалён");
+                System.out.println("Стенд " + node1 + " удалён");
             }
 
 
@@ -101,17 +101,17 @@ public class ActionStands {
         }
     }
 
-    public void addStands( String node1, String node2, String port, String folder, String owner){
-        if (node1 == null){
+    public void addStands(String node1, String node2, String port, String folder, String owner) {
+        if (node1 == null) {
             System.out.println("Пришел null, добавление в БД прервано");
-        }else{
+        } else {
             try {
                 // Создаем экземпляр по работе с БД
                 DbHandler dbHandler = DbHandler.getInstance();
 
                 // Добавляем запись
                 dbHandler.addStands(node1, node2, port, folder, owner);
-                System.out.println("Стенд "+node1+" добавлен");
+                System.out.println("Стенд " + node1 + " добавлен");
             } catch (
                     SQLException e) {
                 e.printStackTrace();
@@ -119,18 +119,19 @@ public class ActionStands {
         }
 
     }
-    public boolean checkStands(String node1){
+
+    public boolean checkStands(String node1) {
         boolean result = false;
-        if (node1 == null){
+        if (node1 == null) {
             System.out.println("Пришёл null");
-        }else{
+        } else {
             try {
                 // Создаем экземпляр по работе с БД
                 DbHandler dbHandler = DbHandler.getInstance();
                 result = dbHandler.checkStands(node1).isEmpty();
-                if (result){
+                if (result) {
                     System.out.println(node1 + " не найден в БД");
-                }else System.out.println(node1 + " найден в БД");
+                } else System.out.println(node1 + " найден в БД");
             } catch (
                     SQLException e) {
                 e.printStackTrace();
@@ -139,17 +140,18 @@ public class ActionStands {
         }
         return result;
     }
-    public List<Stands> getStands(String node1){
+
+    public List<Stands> getStands(String node1) {
         List<Stands> result = null;
-        System.out.println("Получаем данные по стенду "+node1);
-        if (node1 == null){
+        System.out.println("Получаем данные по стенду " + node1);
+        if (node1 == null) {
             System.out.println("Пришёл null");
-        }else{
+        } else {
             try {
                 // Создаем экземпляр по работе с БД
                 DbHandler dbHandler = DbHandler.getInstance();
                 result = dbHandler.checkStands(node1);
-                if (result.isEmpty()){
+                if (result.isEmpty()) {
                     System.out.println(node1 + " не найден в БД");
                 }//else System.out.println(node1 + " найден в БД");
             } catch (

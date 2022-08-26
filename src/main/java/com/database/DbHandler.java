@@ -18,6 +18,7 @@ public class DbHandler {
             instance = new DbHandler();
         return instance;
     }
+
     // Объект, в котором будет храниться соединение с БД
     private Connection connection;
 
@@ -28,6 +29,7 @@ public class DbHandler {
         // Выполняем подключение к базе данных
         this.connection = DriverManager.getConnection(CON_STR);
     }
+
     public List<Stands> getAllStands() {
         // Statement используется для того, чтобы выполнить sql-запрос
         try (Statement statement = this.connection.createStatement()) {
@@ -35,7 +37,7 @@ public class DbHandler {
             List<Stands> stands = new ArrayList<Stands>();
             // В resultSet будет храниться результат нашего запроса,
             // который выполняется командой statement.executeQuery()
-            ResultSet resultSet = statement.executeQuery("SELECT id, port, node1, node2, owner,"+
+            ResultSet resultSet = statement.executeQuery("SELECT id, port, node1, node2, owner," +
                     " folder FROM standsInfo");
             // Проходимся по нашему resultSet и заносим данные
             while (resultSet.next()) {
@@ -48,11 +50,12 @@ public class DbHandler {
                         resultSet.getString("folder")));
             }
             return stands;
-        } catch (SQLException e ) {
+        } catch (SQLException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
     }
+
     public List<Stands> checkStands(String node) {
         // Statement используется для того, чтобы выполнить sql-запрос
         try (Statement statement = this.connection.createStatement()) {
@@ -61,7 +64,7 @@ public class DbHandler {
             // В resultSet будет храниться результат нашего запроса,
             // который выполняется командой statement.executeQuery()
             ResultSet resultSet = statement.executeQuery("SELECT id, node1, node2 , port, folder, owner " +
-                    " FROM standsInfo WHERE node1 = '" + node +"'");
+                    " FROM standsInfo WHERE node1 = '" + node + "'");
             // Проходимся по нашему resultSet и заносим данные
             while (resultSet.next()) {
                 stands.add(new Stands(
@@ -73,16 +76,16 @@ public class DbHandler {
                         resultSet.getString("owner")));
             }
             return stands;
-        } catch (SQLException e ) {
+        } catch (SQLException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
     }
 
     // Добавление в БД
-    public void addStands(String node1, String node2, String port, String folder,String owner) {
+    public void addStands(String node1, String node2, String port, String folder, String owner) {
         try (PreparedStatement statement = this.connection.prepareStatement(
-                "INSERT INTO standsInfo('node1', 'node2', 'port', 'folder', 'owner')"+
+                "INSERT INTO standsInfo('node1', 'node2', 'port', 'folder', 'owner')" +
                         "VALUES(?, ?, ?, ?, ?)")) {
             statement.setObject(1, node1);
             statement.setObject(2, node2);
@@ -92,18 +95,18 @@ public class DbHandler {
 
 
             statement.execute();
-        } catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     // Удаление по ID
-    public void deleteStands(String node1){
+    public void deleteStands(String node1) {
         try (PreparedStatement statement = this.connection.prepareStatement(
                 "DELETE FROM standsInfo WHERE node1 = ?")) {
             statement.setObject(1, node1);
             statement.execute();
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

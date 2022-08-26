@@ -22,9 +22,9 @@ public class Stands {
     }
 
     // Выводим информацию
-   /* @Override
+    @Override
     public String toString() {
         return String.format("ID: %s | Порт: %s | Нода1: %s | Нода2: %s | Папка стенда: %s | Владелец: %s ",
                 this.id, this.port, this.node1, this.node2, this.folder, this.owner);
-    }*/
+    }
 }
