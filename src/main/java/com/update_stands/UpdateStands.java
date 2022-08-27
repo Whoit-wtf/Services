@@ -97,15 +97,15 @@ public class UpdateStands {
         String folder = stands.get(0).folder;
         String owner = stands.get(0).owner;
         if (type == 1) {
-            toDoRenameMe(stands, node1, port);
+            killProcess(stands, node1, port);
             path = folder;
         } else if (type == 2) {
-            toDoRenameMe(stands, node1, port);
-            toDoRenameMe(stands, node2, port);
+            killProcess(stands, node1, port);
+            killProcess(stands, node2, port);
             path = findShare(node1, folder);
         }
 
-
+        //Если url с ядром не пуста
         if (!"".equals(url_server)) {
             System.out.println("Начинаем обновлять ядро");
             if (sufd_server(node1, url_server, path, owner)) {
@@ -116,6 +116,7 @@ public class UpdateStands {
                 return;
             }
         }
+        //Если url с либами не пуста
         if (!"".equals(url_libs)) {
             System.out.println("Начинаем обновлять либы");
             if (sufd_libs(node1, url_libs, path, owner)) {
@@ -126,6 +127,7 @@ public class UpdateStands {
                 return;
             }
         }
+        //Если url с прикладом не пуста
         if (("".equals(url_patch))) {
             System.out.println("Начинаем обновлять приклад");
             if (sufd_patch(node1, url_patch, path, owner)) {
@@ -136,9 +138,17 @@ public class UpdateStands {
                 return;
             }
         }
+        //Стартуем стенды
+        if (type == 1) {
+            startStand(stands, node1);
+        } else if (type == 2) {
+            startStand(stands, node1);
+            startStand(stands, node2);
+        }
+
     }
 
-    private static void toDoRenameMe(@NotNull List<Stand> stands, String host, String port) {
+    private static void killProcess(@NotNull List<Stand> stands, String host, String port) {
         ResultCommand result;
         String owner = stands.get(0).owner;
         String pid = null;
@@ -160,6 +170,29 @@ public class UpdateStands {
         //System.out.println("Код:" + result.exitStatus);
         System.out.println("Вывод: " + result.getOutLog());
         System.out.println("OK");
+
+    }
+
+    private static void startStand(@NotNull List<Stand> stands, String host) {
+        ResultCommand result;
+        String folder = stands.get(0).folder;
+        String owner = stands.get(0).owner;
+        ConnectionSsh connectionSsh = new ConnectionSsh(host);
+        System.out.printf("Запускаем ноду [%s]\n", host);
+        result = connectionSsh.runCommand("bash << EOF" +
+                "\nsudo su - " + owner +
+                "\ncd " + folder +
+                "\nnohup ./sufd.sh &" +
+                "\nEOF");
+        result.setOutLog(result.getOutLog());
+        System.out.println("Вывод: \n" + result.getOutLog());
+        if (result.getExitStatus() == 0) {
+            System.out.println("Стенд запущен");
+        } else {
+            System.out.println("Что-то пошло не так");
+            System.out.println("Прерывание....");
+            return;
+        }
 
     }
 
