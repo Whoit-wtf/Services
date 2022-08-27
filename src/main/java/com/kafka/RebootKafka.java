@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 
 public class RebootKafka {
     String host;
+
     public RebootKafka() {
         try {
             BufferedReader reader = new BufferedReader(
@@ -19,7 +20,8 @@ public class RebootKafka {
             e.printStackTrace();
         }
     }
-    public void runKafka(){
+
+    public void runKafka() {
         ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Останавливаем kafka-zookeeper.service...");

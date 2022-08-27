@@ -20,13 +20,10 @@ public class Ufoservice {
             System.out.println("Введите адрес ноды: ");
             this.host = reader.readLine();
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
 
     public void runUfoservice() {
         ResultCommand result;

@@ -30,12 +30,11 @@ public class Main {
                     "░░▄██░░░███████████░█████▀░░░\n" +
                     "███▀░░████████████▀██▀▀▀░░░░░");
             System.out.println("1. Обновление стенда");
-            System.out.println("2. Обновление стенда с java8 + jetty9");
+            System.out.println("2. (No)Обновление стенда с java8 + jetty9");
             System.out.println("3. Запуск ufoservice");
             System.out.println("4. Перезапуск Kafka");
-            System.out.println("5. Выдача доступов в PG");
-            System.out.println("6. Работа с logback.xml");
-            System.out.println("7. Работа с DataBase");
+            System.out.println("5. (No)Выдача доступов в PG");
+            System.out.println("6. Работа с DataBase");
             System.out.println("0. Выход");
             s = scan.next();
 
@@ -62,12 +61,9 @@ public class Main {
                     rebootKafka.runKafka();
                     break;
                 case 5:
-                    // вызов метода 4
-                    break;
-                case 6:
                     // вызов метода 5
                     break;
-                case 7:
+                case 6:
                     ActionStands actionStands = new ActionStands();
                     actionStands.main();
 

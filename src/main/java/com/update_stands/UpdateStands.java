@@ -85,9 +85,9 @@ public class UpdateStands {
             return;
         }
         //Проверяем место на диске
-        if (checkDiskSpace(node1)){
+        if (checkDiskSpace(node1)) {
             System.out.println("");
-        }else{
+        } else {
             System.out.println("Упс... Похоже места не хватает");
             System.out.println("Прерывание...");
             return;
@@ -104,7 +104,6 @@ public class UpdateStands {
             toDoRenameMe(stands, node2, port);
             path = findShare(node1, folder);
         }
-
 
 
         if (!"".equals(url_server)) {
@@ -217,7 +216,7 @@ public class UpdateStands {
         SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyy");
         ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(node1);
-        if (typePatch.equals(".zip")){
+        if (typePatch.equals(".zip")) {
             System.out.println("Скачиваем либы в tmp и проверяем содержимое архива");
             result = connectionSsh.runCommand("bash << EOF" +
                     "\nsudo su - " + owner +
@@ -243,7 +242,7 @@ public class UpdateStands {
             String sufdConfig = result.getOutLog().replace("\n", "");
             System.out.println("Код: " + result.getExitStatus());
             System.out.println("Вывод: " + result.getOutLog());
-            if ("sql-migration/".equals(sqlMigration) && "sufd.config/".equals(sufdConfig)){
+            if ("sql-migration/".equals(sqlMigration) && "sufd.config/".equals(sufdConfig)) {
                 System.out.println("Бекапим старые sql-migrations");
                 result = connectionSsh.runCommand("sudo mv " + path + "/sql-migrations " +
                         path + "/sql-migrations.bk_" + formatter.format(date));
@@ -281,7 +280,7 @@ public class UpdateStands {
                     return false;
                 }
 
-            }else {
+            } else {
                 System.out.println("Прерывание...");
                 System.out.println("Удаляем временные файлы...");
                 result = connectionSsh.runCommand("sudo rm -rf " + path + "/showpatch");
@@ -442,7 +441,8 @@ public class UpdateStands {
             return null;
         }
     }
-    public boolean checkDiskSpace(String host){
+
+    public boolean checkDiskSpace(String host) {
         ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Проверка места");
@@ -454,9 +454,9 @@ public class UpdateStands {
             System.out.println("Хватает места?");
             System.out.println("1. Да\n2. Нет");
             int input = Integer.parseInt(reader.readLine());
-            if (input == 1){
+            if (input == 1) {
                 return true;
-            }else return false;
+            } else return false;
         } catch (IOException e) {
             e.printStackTrace();
         }
