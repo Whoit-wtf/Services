@@ -1,5 +1,6 @@
 package com.database;
 
+import com.Config;
 import org.sqlite.JDBC;
 
 import java.sql.*;
@@ -9,7 +10,9 @@ import java.util.List;
 
 public class DbHandler {
 
-    private static final String CON_STR = "jdbc:sqlite:D:\\Перенос\\Java\\new_Services\\service_database.db";
+    //private static final String CON_STR = "jdbc:sqlite:D:\\Перенос\\Java\\new_Services\\service_database.db";
+    static Config config = new Config();
+    static private final String CON_STR = "jdbc:sqlite:"+ config.getPathDB();
     //File file = new File(getClass().getClassLoader().getResource("/template.docx").getFile())
     private static DbHandler instance = null;
 

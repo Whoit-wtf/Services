@@ -9,7 +9,11 @@ import com.update_stands.UpdateStands;
 
 public class Main {
     public static void main(String[] args) {
-
+        if (args.length > 0){
+            Config config = new Config();
+            config.setPathDB(args[0]);
+            config.setPathKey(args[1]);
+        }
         Scanner scan = new Scanner(System.in);
         int x = 0;
         String s = "";
