@@ -29,8 +29,7 @@ public class Ufoservice {
 
 
     public void runUfoservice() {
-        ResultCommand result = new ResultCommand();
-
+        ResultCommand result;
         ConnectionSsh connectionSsh = new ConnectionSsh(host);
         System.out.println("Ищем папку ufoservice...");
         result = connectionSsh.runCommand("sudo find /oracle/ -type d -name \"ufoservice\"");
