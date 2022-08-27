@@ -81,7 +81,7 @@ public class ActionStands {
     }
 
     public void delStands(String node1) {
-        boolean result = false;
+        boolean result;
         try {
             // Создаем экземпляр по работе с БД
             DbHandler dbHandler = DbHandler.getInstance();
@@ -93,7 +93,6 @@ public class ActionStands {
                 dbHandler.deleteStands(node1);
                 System.out.println("Стенд " + node1 + " удалён");
             }
-
 
         } catch (
                 SQLException e) {

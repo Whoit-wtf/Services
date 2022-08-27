@@ -25,20 +25,15 @@ public class SearchInfo {
                         new InputStreamReader(System.in));
                 System.out.println("Введите адрес первой ноды: ");
                 this.node1 = reader.readLine().replace(" ", "");
-                ;
                 System.out.println("Введите адрес второй ноды: ");
                 this.node2 = reader.readLine().replace(" ", "");
-                ;
                 System.out.println("Введите рабочий порт стенда: ");
                 this.port = reader.readLine().replace(" ", "");
-                ;
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
             this.info = run(node1, node2, port);
-        } else {
-
         }
 
     }
