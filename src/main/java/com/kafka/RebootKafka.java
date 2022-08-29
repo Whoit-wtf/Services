@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class RebootKafka {
+
     String host;
 
     public RebootKafka() {

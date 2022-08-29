@@ -25,6 +25,11 @@
 			<version>16.0.3</version>
 			<scope>compile</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.diogonunes</groupId>
+            <artifactId>JColor</artifactId>
+            <version>5.5.1</version>
+        </dependency>
 	</dependencies>
 
     <properties>

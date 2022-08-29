@@ -10,6 +10,7 @@ import java.util.List;
 
 public class DbHandler {
 
+
     //private static final String CON_STR = "jdbc:sqlite:D:\\Перенос\\Java\\new_Services\\service_database.db";
     static Config config = new Config();
     static private final String CON_STR = "jdbc:sqlite:"+ config.getPathDB();

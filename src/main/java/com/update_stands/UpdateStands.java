@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.Config;
 import com.ResultCommand;
 import com.database.*;
 import com.ConnectionSsh;
 import org.jetbrains.annotations.NotNull;
 
 public class UpdateStands {
-
     String node1 = null;
     String node2 = null;
     String port = null;
@@ -148,7 +148,7 @@ public class UpdateStands {
 
     }
 
-    private static void killProcess(@NotNull List<Stand> stands, String host, String port) {
+    private void killProcess(@NotNull List<Stand> stands, String host, String port) {
         ResultCommand result;
         String owner = stands.get(0).owner;
         String pid;
@@ -173,7 +173,7 @@ public class UpdateStands {
 
     }
 
-    private static void startStand(@NotNull List<Stand> stands, String host) {
+    private void startStand(@NotNull List<Stand> stands, String host) {
         ResultCommand result;
         String folder = stands.get(0).folder;
         String owner = stands.get(0).owner;
@@ -445,17 +445,19 @@ public class UpdateStands {
             System.out.println("Бекапим старые либы");
             result = connectionSsh.runCommand("sudo mv " + path + "/lib/ext/sufd " +
                     path + "/lib/ext/sufd.bk_" + formatter.format(date));
-            System.out.println(result.getOutLog());
+
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");
             } else {
                 System.out.println("Что-то пошло не так");
+                System.out.println(result.getOutLog());
                 return false;
             }
             System.out.println("Распаковываем war");
             result = connectionSsh.runCommand("bash << EOF"+
                     "\nsudo su - "+owner+
-                    "\nsudo unzip " + path + "/lib/ext/showlibs/*.war" +
+                    "\ncd " + path + "/lib/ext/showlibs/" +
+                    "\nunzip *.war" +
                     "\nEOF");
             if (0 == result.getExitStatus()) {
                 System.out.println("OK");

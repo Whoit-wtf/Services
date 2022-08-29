@@ -7,10 +7,14 @@ import com.kafka.RebootKafka;
 import com.ufoservice.Ufoservice;
 import com.update_stands.UpdateStands;
 
+
+
+
 public class Main {
+
     public static void main(String[] args) {
-        if (args.length > 0) {
-            Config config = new Config();
+        Config config = new Config();
+        if (args.length >= 2) {
             config.setPathDB(args[0]);
             config.setPathKey(args[1]);
         }
@@ -33,17 +37,16 @@ public class Main {
                     "░░░███▀███████████░░███████░░\n" +
                     "░░▄██░░░███████████░█████▀░░░\n" +
                     "███▀░░████████████▀██▀▀▀░░░░░");
-            System.out.println("1. Обновление стенда");
-            System.out.println("2. (Process)Обновление стенда с java8 + jetty9");
-            System.out.println("3. Запуск Ufoservice");
-            System.out.println("4. Перезапуск Kafka");
-            System.out.println("5. (Process)Выдача доступов в PG");
-            System.out.println("6. Работа с DataBase");
-            System.out.println("7. (Process)Установка Kafka");
-            System.out.println("8. (Process)Установка Consul");
-            System.out.println("0. Выход");
+            System.out.println("1. Обновление стенда\n" +
+                    "2. (Process)Обновление стенда с java8 + jetty9\n" +
+                    "3. Запуск Ufoservice\n" +
+                    "4. Перезапуск Kafka\n" +
+                    "5. (Process)Выдача доступов в PG\n" +
+                    "6. Работа с DataBase\n" +
+                    "7. (Process)Установка Kafka\n" +
+                    "8. (Process)Установка Consul\n" +
+                    "\0. Выход");
             s = scan.next();
-
             try {
                 x = Integer.parseInt(s);
             } catch (NumberFormatException e) {

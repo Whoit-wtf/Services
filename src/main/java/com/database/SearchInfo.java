@@ -1,5 +1,6 @@
 package com.database;
 
+
 import com.ConnectionSsh;
 import com.ResultCommand;
 
@@ -10,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SearchInfo {
-
     String port = null;
     String node1 = null;
     String node2 = null;
