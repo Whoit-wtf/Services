@@ -1,6 +1,6 @@
 package com.database;
 
-import com.Config;
+import com.Main;
 import org.sqlite.JDBC;
 
 import java.sql.*;
@@ -9,29 +9,23 @@ import java.util.Collections;
 import java.util.List;
 
 public class DbHandler {
-
-
-    //private static final String CON_STR = "jdbc:sqlite:D:\\Перенос\\Java\\new_Services\\service_database.db";
-    static Config config = new Config();
-    static private final String CON_STR = "jdbc:sqlite:"+ config.getPathDB();
-    //File file = new File(getClass().getClassLoader().getResource("/template.docx").getFile())
     private static DbHandler instance = null;
-
-    public static synchronized DbHandler getInstance() throws SQLException {
-        if (instance == null)
-            instance = new DbHandler();
-        return instance;
-    }
-
     // Объект, в котором будет храниться соединение с БД
-    private Connection connection;
+    private final Connection connection;
 
     private DbHandler() throws SQLException {
         // Регистрируем драйвер, с которым будем работать
         // в нашем случае Sqlite
         DriverManager.registerDriver(new JDBC());
         // Выполняем подключение к базе данных
+        String CON_STR = "jdbc:sqlite:" + Main.config.getPathDB();
         this.connection = DriverManager.getConnection(CON_STR);
+    }
+
+    public static synchronized DbHandler getInstance() throws SQLException {
+        if (instance == null)
+            instance = new DbHandler();
+        return instance;
     }
 
     public List<Stand> getAllStands() {

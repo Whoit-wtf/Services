@@ -1,5 +1,12 @@
 package com.update_stands;
 
+import com.ConnectionSsh;
+import com.ResultCommand;
+import com.database.ActionStands;
+import com.database.SearchInfo;
+import com.database.Stand;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,12 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.Config;
-import com.ResultCommand;
-import com.database.*;
-import com.ConnectionSsh;
-import org.jetbrains.annotations.NotNull;
 
 public class UpdateStands {
     String node1 = null;
@@ -319,7 +320,7 @@ public class UpdateStands {
                 System.out.println("Распаковываем приклад");
                 result = connectionSsh.runCommand("bash << EOF" +
                         "\nsudo su - " + owner +
-                        "\nunzip -uq " + path + "/showpatch/*.zip -d " + path + "" +
+                        "\nunzip -u " + path + "/showpatch/*.zip -d " + path + "" +
                         "\nEOF");
                 if (0 == result.getExitStatus()) {
                     System.out.println("OK");
@@ -410,8 +411,8 @@ public class UpdateStands {
                     return false;
                 }
                 System.out.println("Переносим либы в папку стенда");
-                result = connectionSsh.runCommand("bash << EOF"+
-                        "\nsudo su - "+ owner +
+                result = connectionSsh.runCommand("bash << EOF" +
+                        "\nsudo su - " + owner +
                         "\nunzip " + path + "/lib/ext/showlibs/*.zip -d " + path + "/lib/ext/" +
                         "\nEOF");
                 if (0 == result.getExitStatus()) {
@@ -454,8 +455,8 @@ public class UpdateStands {
                 return false;
             }
             System.out.println("Распаковываем war");
-            result = connectionSsh.runCommand("bash << EOF"+
-                    "\nsudo su - "+owner+
+            result = connectionSsh.runCommand("bash << EOF" +
+                    "\nsudo su - " + owner +
                     "\ncd " + path + "/lib/ext/showlibs/" +
                     "\nunzip *.war" +
                     "\nEOF");
@@ -509,7 +510,7 @@ public class UpdateStands {
         result = connectionSsh.runCommand("sudo ls -lh " + folder + " | grep lib | awk 'NR==1{{print $11}}'");
         if (result.getOutLog() != null) {
             System.out.println("Папка найдена: " + result.getOutLog().replace("/lib", ""));
-            return result.getOutLog().replace("/lib", "").replace("\n","");
+            return result.getOutLog().replace("/lib", "").replace("\n", "");
         } else {
             System.out.println("Что-то пошло не так...");
             return null;

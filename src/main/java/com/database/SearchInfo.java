@@ -11,10 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SearchInfo {
+    public String[] info;
     String port = null;
     String node1 = null;
     String node2 = null;
-    public String[] info;
 
     //Если нужно собирать данные через конструктор true иначе false
     public SearchInfo(Boolean type) {
@@ -50,8 +50,6 @@ public class SearchInfo {
             System.out.println("не дал результата, похоже стенд выключен...");
 
         } else {
-            //System.out.println("Код: " + result.exitStatus);
-            //System.out.println("Вывод: " + result.getOutLog());
             Pattern pattern = Pattern.compile("-Djetty.home=\\S+");
             Matcher matcher = pattern.matcher(result.getOutLog());
             if (matcher.find()) {
@@ -61,9 +59,7 @@ public class SearchInfo {
                 info[2] = port;
                 info[3] = matcher.group().split("=")[1].replace("\n", "");
             }
-            result = connectionSsh.runCommand("ls -lh " + info[3] + "| awk 'NR==2{{print $3}}'");
-            //System.out.println("Код: " + result.exitStatus);
-            // System.out.println("Вывод: " + result.getOutLog());
+            result = connectionSsh.runCommand("sudo ls -lh " + info[3] + " | awk 'NR==2{{print $3}}'");
             info[4] = result.getOutLog().replace("\n", "");
             System.out.println("Собранная информация:");
             System.out.println("Первая нода: " + info[0]);

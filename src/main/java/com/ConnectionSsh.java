@@ -1,21 +1,22 @@
 package com;
 
-import java.io.InputStream;
-
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import java.io.InputStream;
+
 public class ConnectionSsh {
+    Config config = new Config();
     String host;
-    String user = "petrov.aleksandr";
-    //String private_key = "C:\\Users\\Fenrir\\Desktop\\key_rsa.pem";
+    String user;
     String private_key;
+
     public ConnectionSsh(String host) {
         this.host = host;
-        Config config = new Config();
-        this.private_key = config.getPathKey();
+        this.private_key = Main.config.getPathKey();
+        this.user = Main.config.getUser();
     }
 
     public ResultCommand runCommand(String command1) {
@@ -46,7 +47,7 @@ public class ConnectionSsh {
 
             //по байтово считываем вывод (1000000 байт = 1 Мб) чем выше тем больше вывода будет
             byte[] tmp = new byte[1000000];
-            
+
             while (true) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1000000);
@@ -54,7 +55,7 @@ public class ConnectionSsh {
                     // создаём строку из полученных байтов
                     //result.setOutLog(new String(tmp, 0, i);
                     resultCommand.setOutLog(new String(tmp, 0, i));
-                    
+
                     //System.out.print(new String(tmp, 0, i));
                 }
                 if (channel.isClosed()) {
