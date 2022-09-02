@@ -13,9 +13,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        if (args.length >= 2) {
+        if (args.length >= 3) {
             config.setPathDB(args[0]);
             config.setPathKey(args[1]);
+            config.setUser(args[2]);
         }
         Scanner scan = new Scanner(System.in);
         int x = 0;

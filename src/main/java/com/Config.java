@@ -1,8 +1,6 @@
 package com;
 
 public class Config {
-    /*private String pathDB = "D:\\Перенос\\Java\\new_Services\\service_database.db";
-    private String pathKey = "C:\\Users\\Fenrir\\Desktop\\key_rsa.pem";*/
     private String pathDB = "D:\\Перенос\\Java\\new_Services\\service_database.db";
     private String pathKey = "C:\\Users\\Fenrir\\Desktop\\key_rsa.pem";
     private String user = "petrov.aleksandr";
